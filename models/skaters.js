@@ -17,7 +17,7 @@ export const getSkater = async(data) => {
 }
 
 export const createSkater = async (data) => {
-  const { email, nombre, password, anos_experiencia, especialidad, foto } = data
+  const { email, nombre, password, anos_experiencia, especialidad, foto} = data
   const text = "INSERT INTO skaters (email, nombre, password, anos_experiencia, especialidad, foto, estado) VALUES ($1, $2, $3, $4, $5, $6, $7)"
   const values = [
     email,

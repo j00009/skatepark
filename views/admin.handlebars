@@ -4,61 +4,68 @@
     <h2>Administración</h2>
     <hr class="w-50" />
 
-    <table class="table w-50 m-auto">
-    <thead>
-        <tr>
-        <th scope="col">#</th>
-        <th scope="col">Foto</th>
-        <th scope="col">Nombre</th>
-        <th scope="col">Años de experiencia</th>
-        <th scope="col">Especialidad</th>
-        <th scope="col">Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        {{#each skaters}}
-            <tr>
-                <th scope="row">{{this.id}}</th>
-                <td><div></div></td>
-                <td>{{this.nombre}}</td>
-                <td>{{this.anos_experiencia}}</td>
-                <td>{{this.especialidad}}</td>
-                <td>
-                    <input 
-                        type="checkbox" 
-                        {{#if this.estado}} checked {{/if}} 
-                        onclick="handleChange({{this.id}}, this)"
-                    />
-                </td>
-            </tr>
-        {{/each}}
-    </tbody>
-    </table>
+    {{#if skaters}}
+        <table class="table w-50 m-auto">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Años de experiencia</th>
+                    <th scope="col">Especialidad</th>
+                    <th scope="col">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each skaters}}
+                    <tr>
+                        <th scope="row">{{this.id}}</th>
+                        <td><div></div></td>
+                        <td>{{this.nombre}}</td>
+                        <td>{{this.anos_experiencia}}</td>
+                        <td>{{this.especialidad}}</td>
+                        <td>
+                            <input 
+                                type="checkbox" 
+                                {{#if this.estado}} checked {{/if}} 
+                                onclick="handleChange({{this.id}}, this)"
+                            />
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+    {{else}}
+        <script>
+            alert("No tienes permiso para acceder a esta página.");
+            window.location.href = "/";
+        </script>
+    {{/if}}
 </div>
 
 <script>
-    /** función toma el elemento que inició el event,
-     *  junto con el id del skater para actualizarlo en la DB
-     */
-    async function handleChange(id, event) {
-        const estado = event.checked // revisa si el checkbox está seleccionado o no
+async function handleChange(id, event) {
+    const estado = event.checked; // Verifica el estado del checkbox
 
+    try {
         const result = await fetch("/skaters/status", {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                id: id,
-                estado: estado
-            })
-        })
+            body: JSON.stringify({ id, estado })
+        });
 
-        const data = await result.json()
-
-        if (result.status == 500) {
-            alert('Problemas actualizando estado')
-            return
+        if (!result.ok) {
+            throw new Error('Error al actualizar el estado.');
         }
+
+        const data = await result.json();
+        alert(`Estado actualizado exitosamente para el skater con ID: ${id}`);
+    } catch (error) {
+        console.error(error);
+        alert('Problemas actualizando el estado.');
+        event.checked = !estado; // Revierte el cambio si falla
     }
+}
 </script>
